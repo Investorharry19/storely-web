@@ -255,6 +255,12 @@ export default function ManageStorePage() {
             </Link>
             <Link
               className="text-sm font-semibold text-[#70675d] hover:text-[#a04b2b]"
+              href="/owner/manage/settings"
+            >
+              Settings
+            </Link>
+            <Link
+              className="text-sm font-semibold text-[#70675d] hover:text-[#a04b2b]"
               href={`/store/${store.slug}`}
             >
               View storefront

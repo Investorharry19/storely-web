@@ -58,6 +58,14 @@ export default function OwnerLoginPage() {
               value={password}
             />
           </label>
+          <div className="-mt-2 text-right">
+            <Link
+              className="text-sm font-semibold text-[#a04b2b] hover:underline"
+              href="/owner/forgot-password"
+            >
+              Forgot password?
+            </Link>
+          </div>
           {error ? <p className="text-sm text-[#a04b2b]">{error}</p> : null}
           <button
             className="button-dark w-full"

@@ -225,6 +225,18 @@ export const authApi = {
       { email, purpose: "SIGNUP" },
     );
   },
+  forgotPassword(email: string) {
+    return requests.post<ApiResponse<null> & { message: string }>(
+      "/auth/forgot-password",
+      { email },
+    );
+  },
+  resetPassword(input: { email: string; code: string; newPassword: string }) {
+    return requests.post<ApiResponse<null> & { message: string }>(
+      "/auth/reset-password",
+      input,
+    );
+  },
   logout() {
     const session = getSession();
     clearSession();

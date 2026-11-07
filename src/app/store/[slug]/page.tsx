@@ -70,9 +70,22 @@ export default function StorefrontPage() {
             <p className="eyebrow text-[#a04b2b]">
               {store.category} / {store.location ?? "Online store"}
             </p>
-            <h1 className="mt-4 max-w-3xl font-serif text-6xl leading-[.95] tracking-tight sm:text-8xl">
-              {store.name}
-            </h1>
+            <div className="mt-4 flex items-center gap-5">
+              {store.logoUrl ? (
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-[#ded5ca] bg-[#fffdf9] p-3 sm:h-24 sm:w-24">
+                  <Image
+                    alt={`${store.name} logo`}
+                    className="object-contain"
+                    fill
+                    sizes="(max-width: 640px) 80px, 96px"
+                    src={store.logoUrl}
+                  />
+                </div>
+              ) : null}
+              <h1 className="max-w-3xl font-serif text-6xl leading-[.95] tracking-tight sm:text-8xl">
+                {store.name}
+              </h1>
+            </div>
           </div>
           <div className="md:pb-2">
             <p className="max-w-md text-base leading-7 text-[#70675d]">

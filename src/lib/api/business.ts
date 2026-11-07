@@ -27,16 +27,7 @@ export type CreateBusinessInput = {
   location?: string;
 };
 
-export type UpdateBusinessInput = Pick<
-  CreateBusinessInput,
-  "name" | "type" | "category"
-> & {
-  description?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  website?: string | null;
-  location?: string | null;
-};
+export type UpdateBusinessInput = Partial<CreateBusinessInput>;
 
 export const businessApi = {
   getMine: () => requests.get<ApiResponse<OwnerBusiness>>("/business/me"),

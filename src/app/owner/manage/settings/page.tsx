@@ -35,6 +35,7 @@ export default function OwnerSettingsPage() {
   const [form, setForm] = useState<SettingsForm | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const business = useQuery({
     queryKey: ["business", "me"],
     queryFn: businessApi.getMine,
@@ -45,24 +46,40 @@ export default function OwnerSettingsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (!currentForm) throw new Error("Store settings are not ready.");
-      const updated = await businessApi.update({
-        ...currentForm,
-        name: currentForm.name.trim(),
-        category: currentForm.category.trim(),
-        description: currentForm.description.trim() || null,
-        phone: currentForm.phone.trim() || null,
-        email: currentForm.email.trim().toLowerCase() || null,
-        website: currentForm.website.trim() || null,
-        location: currentForm.location.trim() || null,
+      const existing = business.data?.data;
+      if (!currentForm || !existing)
+        throw new Error("Store settings are not ready.");
+      const original = toForm(existing);
+      const changes: Parameters<typeof businessApi.update>[0] = {};
+      if (currentForm.name.trim() !== original.name)
+        changes.name = currentForm.name.trim();
+      if (currentForm.type !== original.type) changes.type = currentForm.type;
+      if (currentForm.category.trim() !== original.category)
+        changes.category = currentForm.category.trim();
+
+      const optionalFields = [
+        "description",
+        "phone",
+        "email",
+        "website",
+        "location",
+      ] as const;
+      optionalFields.forEach((field) => {
+        const value =
+          field === "email"
+            ? currentForm[field].trim().toLowerCase()
+            : currentForm[field].trim();
+        if (value && value !== original[field]) changes[field] = value;
       });
+
+      if (Object.keys(changes).length > 0) await businessApi.update(changes);
       if (logo) await businessApi.updateLogo(logo);
-      return updated;
     },
     onSuccess: () => {
       setForm(null);
       setLogo(null);
       setError("");
+      setNotice("Store settings saved.");
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ["business", "me"] });
@@ -82,9 +99,19 @@ export default function OwnerSettingsPage() {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setNotice("");
     if (!currentForm) return;
     if (currentForm.name.trim().length < 2)
       return setError("Store name must be at least 2 characters.");
+    const existing = business.data?.data;
+    if (existing?.phone && !currentForm.phone.trim())
+      return setError(
+        "The current API does not support clearing the store phone number.",
+      );
+    if (existing?.email && !currentForm.email.trim())
+      return setError(
+        "The current API does not support clearing the store email.",
+      );
     if (logo && (!logo.type.startsWith("image/") || logo.size > 5 * 1024 * 1024))
       return setError("Logo must be an image no larger than 5 MB.");
     save.mutate();
@@ -261,6 +288,9 @@ export default function OwnerSettingsPage() {
             </label>
             {error ? (
               <p className="text-sm text-[#a04b2b] sm:col-span-2">{error}</p>
+            ) : null}
+            {notice ? (
+              <p className="text-sm text-[#3b7551] sm:col-span-2">{notice}</p>
             ) : null}
             <div className="sm:col-span-2">
               <button className="button-dark" disabled={save.isPending} type="submit">
